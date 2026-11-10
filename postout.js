@@ -1,11 +1,8 @@
 
 // Supabase接続情報
-const SUPABASE_URL = "https://safodxqocftrddfnnzfg.supabase.co";
-const SUPABASE_KEY = "sb_publishable_EDeqdHYI87z397J6B0pZag_0D_WRA9d";
-
-const supabaseClient = createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
+const postsSupabaseClient = supabase.createClient(
+    "https://safodxqocftrddfnnzfg.supabase.co",
+    "sb_publishable_EDeqdHYI87z397J6B0pZag_0D_WRA9d"
 );
 
 // 投稿一覧を取得
@@ -13,7 +10,7 @@ async function loadPosts() {
 
     const postsList = document.getElementById("posts-list");
 
-    const { data, error } = await supabaseClient
+    const { data, error } = await postsSupabaseClient
         .from("posts")
         .select("*")
         .order("created_at", { ascending: false });
