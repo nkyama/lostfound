@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -14,48 +15,54 @@
 
     <main>
         <a href="index.html">← トップページに戻る</a>
-        
-        <form>
+
+        <form id="post-form">
             <p>
                 <label>落とし物名</label><br>
-                <input type="text" placeholder="例：黒い傘">
+                <input type="text" id="title" placeholder="例：黒い傘" required>
             </p>
 
             <p>
                 <label>発見場所</label><br>
-                <input type="text" placeholder="例：中央図書館">
+                <input type="text" id="location" placeholder="例：中央図書館" required>
             </p>
 
             <p>
                 <label>発見日時</label><br>
-                <input type="date">
+                <input type="date" id="found-date" required>
             </p>
 
             <p>
                 <label>カテゴリ</label><br>
-                <select>
-                    <option>傘</option>
-                    <option>財布</option>
-                    <option>学生証</option>
-                    <option>文房具</option>
-                    <option>電子機器</option>
-                    <option>その他</option>
+                <select id="category" required>
+                    <option value="傘">傘</option>
+                    <option value="財布">財布</option>
+                    <option value="学生証">学生証</option>
+                    <option value="文房具">文房具</option>
+                    <option value="電子機器">電子機器</option>
+                    <option value="その他">その他</option>
                 </select>
             </p>
 
             <p>
                 <label>詳細説明</label><br>
-                <textarea rows="5" cols="40"></textarea>
+                <textarea id="description" rows="5" cols="40"></textarea>
             </p>
 
             <p>
                 <label>写真</label><br>
-                <input type="file">
+                <input type="file" id="photo" accept="image/*">
             </p>
 
             <button type="submit">投稿する</button>
         </form>
+
+        <p id="message"></p>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="post.js"></script>
 
 </body>
 </html>
+
