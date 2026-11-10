@@ -407,3 +407,80 @@ form button:hover {
         padding: 20px;
     }
 }
+
+
+/* =========================
+   ヘッダー右上のログイン表示
+========================= */
+
+header {
+    position: relative;
+}
+
+/* ログイン情報の配置 */
+.header-auth {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ログイン状態 */
+#login-status {
+    margin: 0;
+    padding: 8px 14px;
+
+    background-color: #e8f5e9;
+    color: #008000;
+
+    border: 1px solid #c8e6c9;
+    border-radius: 20px;
+
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* ログインボタン */
+.header-auth .login-button {
+    display: inline-block;
+
+    background-color: white;
+    color: #008000;
+
+    padding: 9px 16px;
+    margin: 0;
+
+    border: 1px solid #008000;
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+/* マウスを重ねたとき */
+.header-auth .login-button:hover {
+    background-color: #e8f5e9;
+    transform: translateY(-2px);
+}
+
+/* スマートフォン対応 */
+@media (max-width: 768px) {
+    header {
+        padding: 20px;
+    }
+
+    .header-auth {
+        position: static;
+
+        justify-content: center;
+        flex-wrap: wrap;
+
+        margin-top: 15px;
+    }
+}

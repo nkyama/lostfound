@@ -15,9 +15,12 @@
     <h1>新潟大学 忘れ物・落とし物共有サイト</h1>
     <p>学内の落とし物情報を共有しよう</p>
 
-    <a href="mail.html" class="login-button">
-      ログイン・新規登録
-    </a> 
+    <div class="header-auth">
+      <p id="login-status">ログイン状態を確認中...</p>
+      <a href="mail.html" id="auth-link" class="login-button">
+        ログイン・新規登録
+      </a>
+    </div>
   </header>
   
   <main>
@@ -53,10 +56,7 @@
     </button>
   </main>
 
-    <!-- ログイン状態の表示 -->
-  <footer>
-    <p id="login-status">ログイン状態を確認中...</p>
-  </footer>
+
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="java.js"></script>

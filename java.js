@@ -1,7 +1,8 @@
 
+
 const { createClient } = supabase;
 
-// Supabaseの管理画面で確認した値に置き換える
+// Supabaseの接続情報
 const SUPABASE_URL = "https://safodxqocftrddfnnzfg.supabase.co";
 const SUPABASE_KEY = "sb_publishable_EDeqdHYI87z397J6B0pZag_0D_WRA9d";
 
@@ -10,38 +11,58 @@ const supabaseClient = createClient(
   SUPABASE_KEY
 );
 
+// HTML要素を取得
 const form = document.getElementById("auth-form");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const message = document.getElementById("message");
 const account = document.getElementById("account");
 const userEmail = document.getElementById("user-email");
+const signupButton = document.getElementById("signup");
+const logoutButton = document.getElementById("logout");
+const loginStatus = document.getElementById("login-status");
 
+// メッセージ表示
 function showMessage(text) {
-  message.textContent = text;
+  if (message) {
+    message.textContent = text;
+  }
 }
 
 // ログイン状態に合わせて画面を更新
-async function updateScreen() {
-  const { data, error } =
-    await supabaseClient.auth.getSession();
+function updateDisplay(session) {
+  const user = session?.user;
 
-  if (error) {
-    showMessage("状態を確認できませんでした。");
-    return;
+  if (account) {
+    account.hidden = !user;
   }
 
-  const user = data.session?.user;
+  if (form) {
+    form.hidden = !!user;
+  }
 
-  account.hidden = !user;
-  form.hidden = !!user;
-  userEmail.textContent = user?.email ?? "";
+  if (userEmail) {
+    userEmail.textContent = user?.email ?? "";
+  }
+
+  if (loginStatus) {
+    loginStatus.textContent = user
+      ? `ログイン中：${user.email}`
+      : "未ログイン";
+  }
+
+  const authLink = document.getElementById("auth-link");
+
+  if (authLink) {
+    authLink.textContent = user
+      ? "アカウント"
+      : "ログイン・新規登録";
+  }
 }
 
 // 新規登録
-document.getElementById("signup").addEventListener(
-  "click",
-  async () => {
+if (signupButton) {
+  signupButton.addEventListener("click", async () => {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
 
@@ -56,7 +77,8 @@ document.getElementById("signup").addEventListener(
       email,
       password,
       options: {
-        emailRedirectTo: window.location.origin + "/lostfound/index.html"
+        emailRedirectTo:
+          window.location.origin + "/lostfound/index.html"
       }
     });
 
@@ -66,39 +88,40 @@ document.getElementById("signup").addEventListener(
     }
 
     showMessage(
-      "登録処理を受け付けました。メール確認が必要な場合は、届いたメールを確認してください。"
+      "登録を受け付けました。メールを確認してください。"
     );
-  }
-);
+  });
+}
 
 // ログイン
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+if (form) {
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
 
-  showMessage("ログイン処理中です...");
+    showMessage("ログイン処理中です...");
 
-  const { error } =
-    await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
+    const { error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
 
-  if (error) {
-    showMessage("ログインエラー：" + error.message);
-    return;
-  }
+    if (error) {
+      showMessage("ログインエラー：" + error.message);
+      return;
+    }
 
-  showMessage("ログインしました！");
-  window.location.href = "index.html";
-});
+    showMessage("ログインしました！");
+    window.location.href = "index.html";
+  });
+}
 
 // ログアウト
-document.getElementById("logout").addEventListener(
-  "click",
-  async () => {
+if (logoutButton) {
+  logoutButton.addEventListener("click", async () => {
     const { error } = await supabaseClient.auth.signOut();
 
     if (error) {
@@ -107,43 +130,34 @@ document.getElementById("logout").addEventListener(
     }
 
     showMessage("ログアウトしました。");
-    await updateScreen();
-  }
-);
+  });
+}
 
-// メール確認後などの認証状態の変化を反映
+// ログイン状態の変化を監視
 supabaseClient.auth.onAuthStateChange(
   (_event, session) => {
-    const user = session?.user;
-
-    account.hidden = !user;
-    form.hidden = !!user;
-    userEmail.textContent = user?.email ?? "";
+    updateDisplay(session);
   }
 );
 
-updateScreen();
-
-// トップページにログイン状態を表示する
-async function showLoginStatus() {
-  const status = document.getElementById("login-status");
-
-  if (!status) return;
-
-  const { data, error } = await supabaseClient.auth.getSession();
+// 最初にログイン状態を取得
+async function initialize() {
+  const { data, error } =
+    await supabaseClient.auth.getSession();
 
   if (error) {
-    status.textContent = "ログイン状態を確認できませんでした。";
+    showMessage("ログイン状態を確認できませんでした。");
+
+    if (loginStatus) {
+      loginStatus.textContent =
+        "ログイン状態を確認できませんでした。";
+    }
+
     return;
   }
 
-  const user = data.session?.user;
-
-  if (user) {
-    status.textContent = `ログイン中：${user.email}`;
-  } else {
-    status.textContent = "ログインしていません。";
-  }
+  updateDisplay(data.session);
 }
 
-showLoginStatus();
+initialize();
+
