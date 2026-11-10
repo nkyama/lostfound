@@ -1,4 +1,3 @@
-const { createClient } = supabase;
 
 // Supabase接続情報
 const SUPABASE_URL = "https://safodxqocftrddfnnzfg.supabase.co";
