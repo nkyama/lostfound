@@ -3,8 +3,8 @@
 const { createClient } = supabase;
 
 // Supabaseの接続情報
-const SUPABASE_URL = "あなたのSupabase URL";
-const SUPABASE_KEY = "あなたのPublishable key";
+const SUPABASE_URL = "https://safodxqocftrddfnnzfg.supabase.co";
+const SUPABASE_KEY = "sb_publishable_EDeqdHYI87z397J6B0pZag_0D_WRA9d";
 
 const supabaseClient = createClient(
     SUPABASE_URL,
