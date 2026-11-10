@@ -9,6 +9,7 @@
   <!-- CSSを読み込む -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <header>
     <h1>新潟大学 忘れ物・落とし物共有サイト</h1>
@@ -46,15 +47,21 @@
   </div>
 </div>
     
-      
-    
-    
+        
     <button onclick="location.href='post.html'">
       落とし物を投稿する
     </button>
   </main>
-  
+
+    <!-- ログイン状態の表示 -->
+  <footer>
+    <p id="login-status">ログイン状態を確認中...</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="java.js"></script>
   <script src="style.js"></script>
+
 </body>
 </html>
 

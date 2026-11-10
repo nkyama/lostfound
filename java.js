@@ -123,3 +123,27 @@ supabaseClient.auth.onAuthStateChange(
 );
 
 updateScreen();
+
+// トップページにログイン状態を表示する
+async function showLoginStatus() {
+  const status = document.getElementById("login-status");
+
+  if (!status) return;
+
+  const { data, error } = await supabaseClient.auth.getSession();
+
+  if (error) {
+    status.textContent = "ログイン状態を確認できませんでした。";
+    return;
+  }
+
+  const user = data.session?.user;
+
+  if (user) {
+    status.textContent = `ログイン中：${user.email}`;
+  } else {
+    status.textContent = "ログインしていません。";
+  }
+}
+
+showLoginStatus();
