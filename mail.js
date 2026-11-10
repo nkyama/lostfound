@@ -1,4 +1,5 @@
 
+
 const { createClient } = supabase;
 
 // Supabaseの接続情報
@@ -17,11 +18,37 @@ const passwordInput = document.getElementById("password");
 const message = document.getElementById("message");
 const signupButton = document.getElementById("signup");
 const logoutButton = document.getElementById("logout");
+const account = document.getElementById("account");
+const userEmail = document.getElementById("user-email");
 
 // メッセージ表示
 function showMessage(text) {
     if (message) {
         message.textContent = text;
+    }
+}
+
+// ログイン状態に応じて画面を切り替える
+async function updateScreen() {
+    const { data: { session }, error } =
+        await supabaseClient.auth.getSession();
+
+    if (error) {
+        showMessage("ログイン状態の確認に失敗しました。");
+        return;
+    }
+
+    if (session) {
+        // ログイン中
+        form.hidden = true;
+        account.hidden = false;
+        userEmail.textContent = session.user.email;
+        message.textContent = "ログインしています。";
+    } else {
+        // ログアウト中
+        form.hidden = false;
+        account.hidden = true;
+        userEmail.textContent = "";
     }
 }
 
@@ -77,7 +104,6 @@ if (form) {
             return;
         }
 
-        showMessage("ログインしました！");
         window.location.href = "index.html";
     });
 }
@@ -93,5 +119,15 @@ if (logoutButton) {
         }
 
         showMessage("ログアウトしました。");
+        await updateScreen();
     });
 }
+
+// ログイン状態の変化を監視
+supabaseClient.auth.onAuthStateChange(() => {
+    updateScreen();
+});
+
+// ページを開いたときにログイン状態を確認
+updateScreen();
+
