@@ -484,3 +484,27 @@ header {
         margin-top: 15px;
     }
 }
+
+.posts-section {
+    margin: 40px auto;
+    max-width: 800px;
+    padding: 20px;
+}
+
+.post-card {
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.post-card h3 {
+    margin-top: 0;
+    color: #008000;
+}
+
+.post-card p {
+    color: #555;
+}
