@@ -1,20 +1,14 @@
 # webサイト制作
 忘れ物共有サイト
 
-## 概要
-HTML、CSS、JavaScriptを使ってWebサイトを作成するプロジェクトです。
+index.html：トップページ
+index.js：ログイン状況表示
+mail.html：ログイン画面
+mail.js：ログイン処理
+post.js：投稿のデータを読み込む
+postout.js：投稿のデータを出力
+style.css：全体のデザイン
+style.js：index.htmlのデザイン
 
-## 使用技術
-- HTML
-- CSS
-- JavaScript
-
-## 実行方法
-1. レポジトリをダウンロードする
-2. `index.html` をブラウザで開く
-
-## メンバー
-- 自分のGitHubユーザー名
-- 共同開発メンバーのユーザー名
 
 
