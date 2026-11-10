@@ -34,8 +34,15 @@ async function loadPosts() {
         const card = document.createElement("div");
         card.className = "item";
 
+        const info = document.createElement("div");
+        info.className = "item-info";
+
         const title = document.createElement("h3");
         title.textContent = post.title;
+        
+        const status = document.createElement("span");
+        status.className = "status";
+        status.textContent = "落とし物";
 
         const location = document.createElement("p");
         location.textContent = "発見場所：" + post.location;
@@ -49,17 +56,19 @@ async function loadPosts() {
         const description = document.createElement("p");
         description.textContent = "詳細：" + (post.description || "なし");
 
-        card.append(
+        info.append(
             title,
             location,
             date,
+            status,
             category,
             description
         );
 
+        card.appendChild(info);
         postsList.appendChild(card);
     });
 }
 
 // ページ読み込み時に実行
-document.addEventListener("DOMContentLoaded", loadPosts);
+loadPosts();
