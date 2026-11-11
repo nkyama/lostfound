@@ -5,12 +5,11 @@ const postsSupabaseClient = supabase.createClient(
     "sb_publishable_EDeqdHYI87z397J6B0pZag_0D_WRA9d"
 );
 
+const postsMessage = document.getElementById("posts-message");
+
 // 投稿一覧を取得
 async function loadPosts() {
     const postsList = document.getElementById("posts-list");
-    const {
-        data: { user }
-    } = await postsSupabaseClient.auth.getUser();
 
 const { data, error } = await postsSupabaseClient
         .from("posts")
@@ -20,6 +19,25 @@ const { data, error } = await postsSupabaseClient
     if (error) {
         postsList.textContent = "投稿の取得に失敗しました：" + error.message;
         return;
+    }
+
+    const userIds = [...new Set(data.map(post => post.user_id).filter(Boolean))];
+    let profilesById = new Map();
+
+    if (userIds.length > 0) {
+        const { data: profiles, error: profilesError } = await postsSupabaseClient
+            .from("profiles")
+            .select("id, display_name")
+            .in("id", userIds);
+
+        if (profilesError) {
+            postsMessage.textContent =
+                "投稿者情報の取得に失敗しました：" + profilesError.message;
+        } else {
+            profilesById = new Map(
+                profiles.map(profile => [profile.id, profile.display_name])
+            );
+        }
     }
 
     // 投稿がない場合
@@ -58,25 +76,14 @@ const { data, error } = await postsSupabaseClient
         const description = document.createElement("p");
         description.textContent = "詳細：" + (post.description || "なし");
 
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "削除";
-        deleteButton.style.marginTop = "10px";
-        
-        if (post.photo_url) {
-            const photo = document.createElement("img");
-            photo.src = post.photo_url;
-            photo.alt = `${post.title}の写真`;
-            photo.loading = "lazy";
-            card.appendChild(photo);
-        }
-
         info.append(
             title,
             location,
             date,
             status,
             category,
-            description
+            description,
+            poster
         );
         
         if (user && user.id === post.user_id) {
