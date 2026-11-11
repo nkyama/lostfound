@@ -84,3 +84,6 @@ async function loadPosts() {
 
 // ページ読み込み時に実行
 loadPosts();
+const {
+    data: { user }
+} = await postsSupabaseClient.auth.getUser();
