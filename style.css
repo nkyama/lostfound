@@ -520,3 +520,109 @@ header {
 .post-card p {
     color: #555;
 }
+
+
+/* =========================
+   チャット画面
+========================= */
+
+.chat-main {
+    max-width: 800px;
+}
+
+/* チャット全体 */
+.chat-container {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+    margin-top: 20px;
+    overflow: hidden;
+}
+
+/* チャット上部 */
+.chat-header {
+    background-color: #e8f5e9;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.chat-header h3 {
+    color: #008000;
+    margin: 0;
+}
+
+.chat-header p {
+    color: #666666;
+    font-size: 14px;
+}
+
+/* メッセージ表示欄 */
+#chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #fafafa;
+}
+
+/* メッセージ */
+.message {
+    background-color: #eeeeee;
+    padding: 12px 15px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    max-width: 75%;
+    width: fit-content;
+    overflow-wrap: anywhere;
+}
+
+/* 自分のメッセージ */
+.my-message {
+    background-color: #d5f5df;
+    margin-left: auto;
+}
+
+/* 入力フォーム */
+#chat-form {
+    display: flex;
+    gap: 10px;
+    max-width: none;
+    margin: 0;
+    padding: 15px;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* 入力欄 */
+#chat-form input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+}
+
+/* 送信ボタン */
+#chat-form button {
+    width: auto;
+    margin: 0;
+    padding: 10px 20px;
+}
+
+/* スマートフォン対応 */
+@media (max-width: 600px) {
+    .chat-main {
+        width: auto;
+        padding: 15px;
+    }
+
+    #chat-messages {
+        height: 350px;
+        padding: 12px;
+    }
+
+    #chat-form {
+        padding: 10px;
+    }
+
+    #chat-form button {
+        padding: 10px 15px;
+    }
+}

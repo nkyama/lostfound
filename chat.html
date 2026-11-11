@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>チャット - 新潟大学 落とし物共有サイト</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>新潟大学 忘れ物・落とし物共有サイト</h1>
+        <p>学内の落とし物情報を共有しよう</p>
+    </header>
+
+    <main class="chat-main">
+
+        <a href="index.html">← トップページに戻る</a>
+
+        <h2>落とし物についてのチャット</h2>
+
+        <div class="chat-container">
+
+            <div class="chat-header">
+                <h3 id="chat-title">チャット</h3>
+                <p>投稿者との非公開チャット</p>
+            </div>
+
+            <div id="chat-messages">
+                <!-- メッセージを表示する場所 -->
+            </div>
+
+            <form id="chat-form">
+                <input
+                    type="text"
+                    id="message-input"
+                    placeholder="メッセージを入力"
+                    maxlength="2000"
+                    required
+                >
+                <button type="submit">送信</button>
+            </form>
+
+            <p id="chat-status"></p>
+
+        </div>
+
+    </main>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="chat.js"></script>
+
+
+</body>
+</html>
