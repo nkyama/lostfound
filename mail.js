@@ -67,6 +67,12 @@ signupButton.addEventListener("click", async () => {
     const displayName = displayNameInput.value.trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value;
+    if (!email.endsWith("@mail.cc.niigata-u.ac.jp")) {
+        showMessage(
+            "新潟大学のメールアドレスを使用してください。"
+        );
+        return;
+    }
 
     if (!displayName || displayName.length > 40 || !email || password.length < 6) {
         showMessage("表示名、メールアドレス、6文字以上のパスワードを入力してください。");
