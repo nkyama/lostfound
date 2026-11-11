@@ -66,6 +66,19 @@ async function loadPosts() {
         const card = document.createElement("div");
         card.className = "item";
 
+        if (post.photo_url) {
+            const photo = document.createElement("img");
+            photo.src = post.photo_url;
+            photo.alt = post.title + "の写真";
+            photo.loading = "lazy";
+            photo.addEventListener("error", () => {
+                photo.remove();
+                postsMessage.textContent =
+                    "写真を読み込めません。Supabase Storageの公開設定と画像URLを確認してください。";
+            }, { once: true });
+            card.appendChild(photo);
+        }
+
         const info = document.createElement("div");
         info.className = "item-info";
 
