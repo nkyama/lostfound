@@ -7,10 +7,12 @@ const postsSupabaseClient = supabase.createClient(
 
 // 投稿一覧を取得
 async function loadPosts() {
-
     const postsList = document.getElementById("posts-list");
+    const {
+        data: { user }
+    } = await postsSupabaseClient.auth.getUser();
 
-    const { data, error } = await postsSupabaseClient
+const { data, error } = await postsSupabaseClient
         .from("posts")
         .select("*")
         .order("created_at", { ascending: false });
@@ -76,7 +78,30 @@ async function loadPosts() {
             category,
             description
         );
-
+        
+        if (user && user.id === post.user_id) {
+            deleteButton.addEventListener("click", async () => {
+                const ok = confirm(
+                    "この投稿を削除しますか？"
+                );
+                
+                if (!ok) return;
+                const { error } = await postsSupabaseClient
+                    .from("posts")
+                    .delete()
+            .eq("id", post.id);
+                if (error) {
+                    alert("削除失敗：" + error.message);
+                    return;
+                }
+                
+                card.remove();
+                
+                alert("削除しました");
+            });
+            
+            info.appendChild(deleteButton);
+        }
         card.appendChild(info);
         postsList.appendChild(card);
     });
@@ -84,6 +109,3 @@ async function loadPosts() {
 
 // ページ読み込み時に実行
 loadPosts();
-const {
-    data: { user }
-} = await postsSupabaseClient.auth.getUser();
