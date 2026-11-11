@@ -56,6 +56,10 @@ async function loadPosts() {
         const description = document.createElement("p");
         description.textContent = "詳細：" + (post.description || "なし");
 
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "削除";
+        deleteButton.style.marginTop = "10px";
+        
         if (post.photo_url) {
             const photo = document.createElement("img");
             photo.src = post.photo_url;
