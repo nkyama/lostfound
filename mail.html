@@ -22,6 +22,11 @@
     <h2>ログイン・新規登録</h2>
 
     <form id="auth-form">
+    <label for="display-name">表示名（新規登録時）</label>
+    <input id="display-name" type="text" maxlength="40" autocomplete="nickname">
+
+    <br><br>
+
     <label for="email">メールアドレス</label>
     <input id="email" type="email" required>
 
@@ -41,6 +46,9 @@
   <section id="account" hidden>
     <h2>ログイン中</h2>
     <p id="user-email"></p>
+    <label for="account-display-name">表示名</label>
+    <input id="account-display-name" type="text" maxlength="40" autocomplete="nickname">
+    <button id="save-display-name" type="button">表示名を保存</button>
     <button id="logout" type="button">ログアウト</button>
   </section>
 
