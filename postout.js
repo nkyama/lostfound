@@ -10,8 +10,7 @@ const postsMessage = document.getElementById("posts-message");
 // 投稿一覧を取得
 async function loadPosts() {
     const postsList = document.getElementById("posts-list");
-
-const { data, error } = await postsSupabaseClient
+    const { data, error } = await postsSupabaseClient
         .from("posts")
         .select("*")
         .order("created_at", { ascending: false });
@@ -21,6 +20,7 @@ const { data, error } = await postsSupabaseClient
         return;
     }
 
+    const statusMessages = [];
     const userIds = [...new Set(data.map(post => post.user_id).filter(Boolean))];
     let profilesById = new Map();
 
@@ -31,14 +31,26 @@ const { data, error } = await postsSupabaseClient
             .in("id", userIds);
 
         if (profilesError) {
-            postsMessage.textContent =
-                "投稿者情報の取得に失敗しました：" + profilesError.message;
+            statusMessages.push(
+                "投稿者情報の取得に失敗しました：" + profilesError.message
+            );
         } else {
             profilesById = new Map(
                 profiles.map(profile => [profile.id, profile.display_name])
             );
         }
     }
+
+    const { data: { session }, error: authError } =
+        await postsSupabaseClient.auth.getSession();
+    if (authError) {
+        statusMessages.push(
+            "ログイン状態を確認できませんでした：" + authError.message
+        );
+    }
+    const user = session?.user;
+
+    postsMessage.textContent = statusMessages.join(" ");
 
     // 投稿がない場合
     if (data.length === 0) {
@@ -76,6 +88,11 @@ const { data, error } = await postsSupabaseClient
         const description = document.createElement("p");
         description.textContent = "詳細：" + (post.description || "なし");
 
+        const poster = document.createElement("p");
+        poster.textContent = "投稿者：" + (
+            profilesById.get(post.user_id) || "表示名未設定"
+        );
+
         info.append(
             title,
             location,
@@ -85,28 +102,34 @@ const { data, error } = await postsSupabaseClient
             description,
             poster
         );
-        
+
         if (user && user.id === post.user_id) {
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.textContent = "この投稿を削除";
             deleteButton.addEventListener("click", async () => {
-                const ok = confirm(
-                    "この投稿を削除しますか？"
-                );
-                
+                const ok = confirm("この投稿を削除しますか？");
                 if (!ok) return;
+
+                deleteButton.disabled = true;
                 const { error } = await postsSupabaseClient
                     .from("posts")
                     .delete()
-            .eq("id", post.id);
+                    .eq("id", post.id);
+
                 if (error) {
-                    alert("削除失敗：" + error.message);
+                    postsMessage.textContent =
+                        "削除に失敗しました：" + error.message;
+                    deleteButton.disabled = false;
                     return;
                 }
-                
+
                 card.remove();
-                
-                alert("削除しました");
+                if (postsList.children.length === 0) {
+                    postsList.textContent = "まだ投稿はありません。";
+                }
             });
-            
+
             info.appendChild(deleteButton);
         }
         card.appendChild(info);
