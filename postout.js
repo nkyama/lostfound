@@ -56,6 +56,14 @@ async function loadPosts() {
         const description = document.createElement("p");
         description.textContent = "詳細：" + (post.description || "なし");
 
+        if (post.photo_url) {
+            const photo = document.createElement("img");
+            photo.src = post.photo_url;
+            photo.alt = `${post.title}の写真`;
+            photo.loading = "lazy";
+            card.appendChild(photo);
+        }
+
         info.append(
             title,
             location,
