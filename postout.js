@@ -1,16 +1,26 @@
 
+// 検索に使用するキーワード
+let searchKeyword = "";
+
+//カテゴリと日付
+let selectedCategory = "";
+let sortOrder = "desc";
+
+
 // Supabase接続情報
 const postsSupabaseClient = supabase.createClient(
     "https://safodxqocftrddfnnzfg.supabase.co",
     "sb_publishable_EDeqdHYI87z397J6B0pZag_0D_WRA9d"
 );
 
-const postsMessage = document.getElementById("posts-message");
-
 // 投稿一覧を取得
 async function loadPosts() {
     const postsList = document.getElementById("posts-list");
-    const { data, error } = await postsSupabaseClient
+    const {
+        data: { user }
+    } = await postsSupabaseClient.auth.getUser();
+
+const { data, error } = await postsSupabaseClient
         .from("posts")
         .select("*")
         .order("created_at", { ascending: false });
@@ -20,64 +30,69 @@ async function loadPosts() {
         return;
     }
 
-    const statusMessages = [];
-    const userIds = [...new Set(data.map(post => post.user_id).filter(Boolean))];
-    let profilesById = new Map();
+// 投稿データからカテゴリ候補を作成
+const categoryFilter = document.getElementById("category-filter");
 
-    if (userIds.length > 0) {
-        const { data: profiles, error: profilesError } = await postsSupabaseClient
-            .from("profiles")
-            .select("id, display_name")
-            .in("id", userIds);
+const categories = [
+    ...new Set(data.map(post => post.category).filter(Boolean))
+];
 
-        if (profilesError) {
-            statusMessages.push(
-                "投稿者情報の取得に失敗しました：" + profilesError.message
-            );
-        } else {
-            profilesById = new Map(
-                profiles.map(profile => [profile.id, profile.display_name])
-            );
-        }
-    }
+categoryFilter.replaceChildren(new Option("すべて", ""));
 
-    const { data: { session }, error: authError } =
-        await postsSupabaseClient.auth.getSession();
-    if (authError) {
-        statusMessages.push(
-            "ログイン状態を確認できませんでした：" + authError.message
-        );
-    }
-    const user = session?.user;
+categories.sort().forEach(category => {
+    categoryFilter.add(new Option(category, category));
+});
 
-    postsMessage.textContent = statusMessages.join(" ");
+categoryFilter.value = selectedCategory;
 
-    // 投稿がない場合
-    if (data.length === 0) {
-        postsList.textContent = "まだ投稿はありません。";
-        return;
-    }
+
+const filteredPosts = data.filter(post => {
+
+    const keyword = searchKeyword.toLowerCase();
+
+    const title = (post.title || "").toLowerCase();
+    const location = (post.location || "").toLowerCase();
+    const description = (post.description || "").toLowerCase();
+
+    // キーワード検索
+    const matchesKeyword =
+        title.includes(keyword) ||
+        location.includes(keyword) ||
+        description.includes(keyword);
+
+    // カテゴリの絞り込み
+    const matchesCategory =
+        !selectedCategory ||
+        post.category === selectedCategory;
+
+    return matchesKeyword && matchesCategory;
+});
+
+// 発見日で並び替え
+filteredPosts.sort((a, b) => {
+    const dateA = a.found_date || "";
+    const dateB = b.found_date || "";
+
+    return sortOrder === "desc"
+        ? dateB.localeCompare(dateA)
+        : dateA.localeCompare(dateB);
+});
+
+
+if (filteredPosts.length === 0) {
+    postsList.textContent = searchKeyword
+        ? "該当する投稿がありません。"
+        : "まだ投稿はありません。";
+    return;
+}
 
     // 投稿を画面に表示
     postsList.replaceChildren();
 
-    data.forEach(post => {
+    filteredPosts.forEach(post => {
 
         const card = document.createElement("div");
         card.className = "item";
-
-        if (post.photo_url) {
-            const photo = document.createElement("img");
-            photo.src = post.photo_url;
-            photo.alt = post.title + "の写真";
-            photo.loading = "lazy";
-            photo.addEventListener("error", () => {
-                photo.remove();
-                postsMessage.textContent =
-                    "写真を読み込めません。Supabase Storageの公開設定と画像URLを確認してください。";
-            }, { once: true });
-            card.appendChild(photo);
-        }
 
         const info = document.createElement("div");
         info.className = "item-info";
@@ -101,10 +116,17 @@ async function loadPosts() {
         const description = document.createElement("p");
         description.textContent = "詳細：" + (post.description || "なし");
 
-        const poster = document.createElement("p");
-        poster.textContent = "投稿者：" + (
-            profilesById.get(post.user_id) || "表示名未設定"
-        );
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "削除";
+        deleteButton.style.marginTop = "10px";
+        
+        if (post.photo_url) {
+            const photo = document.createElement("img");
+            photo.src = post.photo_url;
+            photo.alt = `${post.title}の写真`;
+            photo.loading = "lazy";
+            card.appendChild(photo);
+        }
 
         info.append(
             title,
@@ -112,39 +134,59 @@ async function loadPosts() {
             date,
             status,
             category,
-            description,
-            poster
+            description
         );
-
+        
         if (user && user.id === post.user_id) {
-            const deleteButton = document.createElement("button");
-            deleteButton.type = "button";
-            deleteButton.textContent = "この投稿を削除";
             deleteButton.addEventListener("click", async () => {
-                const ok = confirm("この投稿を削除しますか？");
+                const ok = confirm(
+                    "この投稿を削除しますか？"
+                );
+                
                 if (!ok) return;
-
-                deleteButton.disabled = true;
                 const { error } = await postsSupabaseClient
                     .from("posts")
                     .delete()
-                    .eq("id", post.id);
-
+            .eq("id", post.id);
                 if (error) {
-                    postsMessage.textContent =
-                        "削除に失敗しました：" + error.message;
-                    deleteButton.disabled = false;
+                    alert("削除失敗：" + error.message);
                     return;
                 }
-
+                
                 card.remove();
-                if (postsList.children.length === 0) {
-                    postsList.textContent = "まだ投稿はありません。";
-                }
+                
+                alert("削除しました");
             });
-
+            
             info.appendChild(deleteButton);
         }
+
+// 投稿者以外にチャットボタンを表示
+if (!user || user.id !== post.user_id) {
+    const chatButton = document.createElement("button");
+
+    chatButton.textContent = user
+        ? "チャットする"
+        : "チャットする";
+
+    chatButton.style.marginTop = "10px";
+
+    chatButton.addEventListener("click", () => {
+
+        // ログインしていない場合
+        if (!user) {
+            window.location.href = "mail.html";
+            return;
+        }
+
+        // 投稿IDをチャット画面に渡す
+        window.location.href =
+            "chat.html?post_id=" + encodeURIComponent(post.id);
+    });
+
+    info.appendChild(chatButton);
+}
+
         card.appendChild(info);
         postsList.appendChild(card);
     });
@@ -152,3 +194,36 @@ async function loadPosts() {
 
 // ページ読み込み時に実行
 loadPosts();
+
+
+// 検索ボタン
+const searchButton = document.getElementById("search-button");
+const searchInput = document.getElementById("search-input");
+
+searchButton.addEventListener("click", () => {
+    searchKeyword = searchInput.value.trim();
+    loadPosts();
+});
+
+// Enterキーでも検索できるようにする
+searchInput.addEventListener("keydown", event => {
+    if (event.key === "Enter") {
+        searchKeyword = searchInput.value.trim();
+        loadPosts();
+    }
+});
+
+
+// カテゴリを変更したとき
+document.getElementById("category-filter")
+    .addEventListener("change", event => {
+        selectedCategory = event.target.value;
+        loadPosts();
+    });
+
+// 日付順を変更したとき
+document.getElementById("sort-order")
+    .addEventListener("change", event => {
+        sortOrder = event.target.value;
+        loadPosts();
+    });

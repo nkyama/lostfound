@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>チャット一覧</title>
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            visibility: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>チャット一覧</h1>
+        <p>自分のチャットを確認できます</p>
+    </header>
+
+    <main>
+        <a href="index.html">← トップページに戻る</a>
+
+        <h2>チャット一覧</h2>
+
+        <p id="chats-status" role="status"></p>
+
+        <div id="chats-list" class="item-list"></div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="chats.js"></script>
+</body>
+</html>

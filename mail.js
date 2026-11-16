@@ -1,3 +1,5 @@
+
+
 const { createClient } = supabase;
 
 // Supabaseの接続情報
@@ -11,6 +13,7 @@ const supabaseClient = createClient(
 
 // HTML要素を取得
 const form = document.getElementById("auth-form");
+const loginArea = document.getElementById("login-area");
 const displayNameInput = document.getElementById("display-name");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
@@ -22,150 +25,124 @@ const userEmail = document.getElementById("user-email");
 const accountDisplayName = document.getElementById("account-display-name");
 const saveDisplayNameButton = document.getElementById("save-display-name");
 
+// メッセージ表示
 function showMessage(text) {
-    message.textContent = text;
+    if (message) {
+        message.textContent = text;
+    }
 }
 
-async function updateScreen(session) {
-    const user = session?.user;
-    form.hidden = Boolean(user);
-    account.hidden = !user;
+// ログイン状態に応じて画面を切り替える
 
-    if (!user) {
+
+async function updateScreen() {
+    const { data: { user }, error } =
+        await supabaseClient.auth.getUser();
+
+    if (error && !user) {
+        console.warn("ログイン状態の確認:", error.message);
+    }
+
+    if (user) {
+        // ログイン中
+        loginArea.hidden = true;
+        account.hidden = false;
+
+        userEmail.textContent = user.email;
+
+        // 保存済みの表示名を表示
+        accountDisplayName.value =
+            user.user_metadata?.display_name || "";
+
+        // 不要なメッセージを消す
+        showMessage("");
+
+    } else {
+        // 未ログイン
+        loginArea.hidden = false;
+        account.hidden = true;
+
         userEmail.textContent = "";
         accountDisplayName.value = "";
-        return;
+
+        showMessage("");
     }
-
-    userEmail.textContent = user.email ?? "";
-    const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("display_name")
-        .eq("id", user.id)
-        .maybeSingle();
-
-    if (error) {
-        showMessage("表示名の取得に失敗しました：" + error.message);
-        return;
-    }
-
-    accountDisplayName.value = data?.display_name ?? "";
 }
 
-async function initialize() {
-    const { data, error } = await supabaseClient.auth.getSession();
-    if (error) {
-        showMessage("ログイン状態を確認できませんでした：" + error.message);
-        return;
-    }
-
-    await updateScreen(data.session);
-}
-
-// 新規登録
-signupButton.addEventListener("click", async () => {
-    const displayName = displayNameInput.value.trim();
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-    if (!email.endsWith("@mail.cc.niigata-u.ac.jp")) {
-        showMessage(
-            "新潟大学のメールアドレスを使用してください。"
-        );
-        return;
-    }
-
-    if (!displayName || displayName.length > 40 || !email || password.length < 6) {
-        showMessage("表示名、メールアドレス、6文字以上のパスワードを入力してください。");
-        return;
-    }
-
-    showMessage("登録処理中です...");
-
-    const { data, error } = await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: {
-            data: {
-                display_name: displayName
-            },
-            emailRedirectTo:
-                window.location.origin + "/lostfound/index.html"
-        }
-    });
-
-    if (error) {
-        showMessage("登録エラー：" + error.message);
-        return;
-    }
-
-    showMessage("登録を受け付けました。メールを確認してください。");
-    await updateScreen(data.session);
-});
 
 // ログイン
-form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+if (form) {
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
 
-    showMessage("ログイン処理中です...");
+        showMessage("ログイン処理中です...");
 
-    const { error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password
+        const { error } =
+            await supabaseClient.auth.signInWithPassword({
+                email,
+                password
+            });
+
+        if (error) {
+            showMessage("ログインエラー：" + error.message);
+            return;
+        }
+
+        window.location.href = "index.html";
     });
+}
 
-    if (error) {
-        showMessage("ログインエラー：" + error.message);
-        return;
-    }
-
-    window.location.href = "index.html";
-});
-
-// ログアウト
-logoutButton.addEventListener("click", async () => {
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-        showMessage("ログアウトエラー：" + error.message);
-        return;
-    }
-
-    await updateScreen(null);
-    showMessage("ログアウトしました。");
-});
 
 // 表示名を保存
 saveDisplayNameButton.addEventListener("click", async () => {
+
     const displayName = accountDisplayName.value.trim();
-    if (!displayName || displayName.length > 40) {
-        showMessage("表示名を1〜40文字で入力してください。");
+
+    if (!displayName) {
+        showMessage("表示名を入力してください。");
         return;
     }
 
-    const { data, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !data.user) {
-        showMessage(authError
-            ? "ログイン状態を確認できませんでした：" + authError.message
-            : "ログインしてください。");
-        return;
-    }
+    saveDisplayNameButton.disabled = true;
 
-    const { error } = await supabaseClient
-        .from("profiles")
-        .upsert(
-            { id: data.user.id, display_name: displayName },
-            { onConflict: "id" }
-        );
+    const { error } = await supabaseClient.auth.updateUser({
+        data: {
+            display_name: displayName
+        }
+    });
+
+    saveDisplayNameButton.disabled = false;
 
     if (error) {
-        showMessage("表示名の保存に失敗しました：" + error.message);
+        showMessage("保存エラー：" + error.message);
         return;
     }
 
     showMessage("表示名を保存しました。");
 });
 
-initialize();
+// ログアウト
+if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+        const { error } = await supabaseClient.auth.signOut();
+
+        if (error) {
+            showMessage("ログアウトエラー：" + error.message);
+            return;
+        }
+
+        showMessage("ログアウトしました。");
+        await updateScreen();
+    });
+}
+
+// ログイン状態の変化を監視
+supabaseClient.auth.onAuthStateChange(() => {
+    updateScreen();
+});
+
+// ページを開いたときにログイン状態を確認
+updateScreen();

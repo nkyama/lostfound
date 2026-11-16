@@ -41,29 +41,37 @@ function updateDisplay(session) {
     }
 }
 
-// ログイン状態の変化を監視
+
 supabaseClient.auth.onAuthStateChange(
-    (_event, session) => {
+    (event, session) => {
+        if (event === "SIGNED_OUT") {
+            document.body.style.visibility = "hidden";
+            window.location.replace("mail.html");
+            return;
+        }
+
         updateDisplay(session);
     }
 );
 
-// 最初にログイン状態を取得
+
+
 async function initialize() {
     const { data, error } =
-        await supabaseClient.auth.getSession();
+        await supabaseClient.auth.getUser();
 
-    if (error) {
-        if (loginStatus) {
-            loginStatus.textContent =
-                "ログイン状態を確認できませんでした。";
-        }
+    // ログインしていない場合
+    if (error || !data.user) {
+        window.location.replace("mail.html");
         return;
     }
 
-    updateDisplay(data.session);
+    // ログインしている場合<head> 内
+    const { data: sessionData } =
+        await supabaseClient.auth.getSession();
+
+    updateDisplay(sessionData.session);
+    document.body.style.visibility = "visible";
 }
 
 initialize();
-
-

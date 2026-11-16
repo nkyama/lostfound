@@ -8,6 +8,14 @@
 
   <!-- CSSを読み込む -->
   <link rel="stylesheet" href="style.css">
+
+
+<style>
+    body {
+        visibility: hidden;
+    }
+</style>
+
 </head>
 
 <body>
@@ -20,14 +28,39 @@
       <a href="mail.html" id="auth-link" class="login-button">
         ログイン・新規登録
       </a>
+      <a href="chats.html" class="login-button">
+        チャット一覧
+      </a>
     </div>
   </header>
   
   <main>
     <h2>落とし物を探す</h2>
     
-    <input type="text" placeholder="キーワードを入力">
-    <button>検索</button>
+    
+<input
+    type="text"
+    id="search-input"
+    placeholder="キーワードを入力"
+>
+<button id="search-button">検索</button>
+
+
+<div class="filter-area">
+
+    <label for="category-filter">カテゴリ：</label>
+    <select id="category-filter">
+        <option value="">すべて</option>
+    </select>
+
+    <label for="sort-order">日付順：</label>
+    <select id="sort-order">
+        <option value="desc">新しい順</option>
+        <option value="asc">古い順</option>
+    </select>
+
+</div>
+
     
 <h2>新着の落とし物</h2>
 
