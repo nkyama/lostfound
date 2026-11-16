@@ -121,7 +121,7 @@ saveDisplayNameButton.addEventListener("click", async () => {
         return;
     }
 
-    showMessage("表示名を保存しました。");
+    showMessage("");
 });
 
 // ログアウト
