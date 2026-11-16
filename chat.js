@@ -288,4 +288,4 @@ setInterval(async () => {
     if (!conversationId) return;
 
     await loadMessages();
-}, 3000);
+}, 3000);}
