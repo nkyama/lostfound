@@ -429,6 +429,12 @@ header {
     position: relative;
 }
 
+@media (min-width: 769px) {
+    .home-header .header-auth {
+        top: 0;
+    }
+}
+
 /* ログイン情報の配置 */
 .header-auth {
     position: absolute;
