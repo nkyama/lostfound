@@ -1,6 +1,7 @@
 
 const { createClient } = supabase;
 
+// Supabaseの接続情報
 const SUPABASE_URL =
     "https://safodxqocftrddfnnzfg.supabase.co";
 
@@ -17,21 +18,16 @@ const chatMessages = document.getElementById("chat-messages");
 const chatForm = document.getElementById("chat-form");
 const chatStatus = document.getElementById("chat-status");
 
-// URLから投稿IDを取得
-
+// URLから投稿ID・会話IDを取得
 const params = new URLSearchParams(window.location.search);
 
 const postId = params.get("post_id");
 const conversationIdFromUrl = params.get("conversation_id");
 
-
 // 現在の会話ID
 let conversationId = null;
 
 // チャットの初期設定
-async function initializeChat() {
-
-    
 async function initializeChat() {
 
     // ログイン確認
@@ -141,58 +137,6 @@ async function initializeChat() {
 }
 
 
-// ページを開いたときに実行
-initializeChat();
-
-
-// メッセージ送信機能
-chatForm.addEventListener("submit", async function(event) {
-    event.preventDefault();
-
-    if (!conversationId) {
-        chatStatus.textContent = "チャットの準備ができていません。";
-        return;
-    }
-
-    const messageInput = chatForm.querySelector("input");
-    const message = messageInput.value.trim();
-
-    if (!message) {
-        return;
-    }
-
-    // ログイン中のユーザーを取得
-    const { data: userData, error: userError } =
-        await supabaseClient.auth.getUser();
-
-    if (userError || !userData.user) {
-        chatStatus.textContent = "ログインが必要です。";
-        return;
-    }
-
-    // Supabaseにメッセージを保存
-    const { error } = await supabaseClient
-        .from("messages")
-        .insert({
-            conversation_id: conversationId,
-            sender_id: userData.user.id,
-            content: message
-        });
-
-    if (error) {
-        chatStatus.textContent =
-            "送信に失敗しました：" + error.message;
-        return;
-    }
-
-    // 送信成功
-    messageInput.value = "";
-    chatStatus.textContent = "";
-
-    // メッセージ一覧を更新
-    await loadMessages();
-});
-
 // メッセージ送信機能
 chatForm.addEventListener("submit", async function(event) {
     event.preventDefault();
@@ -288,4 +232,8 @@ setInterval(async () => {
     if (!conversationId) return;
 
     await loadMessages();
-}, 3000);}
+}, 3000);
+
+
+// ページを開いたときに実行
+initializeChat();
