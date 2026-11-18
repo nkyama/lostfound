@@ -78,6 +78,12 @@ if (form) {
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
+        // 新潟大学メールアドレス以外を拒否
+        if (!email.endsWith("@mail.cc.niigata-u.ac.jp")) {
+            showMessage("新潟大学のメールアドレスのみ利用できます。");
+            return;
+        }
+
         showMessage("ログイン処理中です...");
 
         const { error } =
@@ -136,6 +142,46 @@ if (logoutButton) {
 
         showMessage("ログアウトしました。");
         await updateScreen();
+    });
+}
+
+// 新規登録
+if (signupButton) {
+    signupButton.addEventListener("click", async () => {
+
+        const displayName = displayNameInput.value.trim();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        // 新潟大学メールアドレスのみ許可
+        if (!email.endsWith("@mail.cc.niigata-u.ac.jp")) {
+            showMessage("新潟大学のメールアドレスのみ登録できます。");
+            return;
+        }
+
+        if (!displayName) {
+            showMessage("表示名を入力してください。");
+            return;
+        }
+
+        showMessage("登録処理中です...");
+
+        const { error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    display_name: displayName
+                }
+            }
+        });
+
+        if (error) {
+            showMessage("登録エラー：" + error.message);
+            return;
+        }
+
+        showMessage("確認メールを送信しました。メールを確認してください。");
     });
 }
 
