@@ -198,10 +198,17 @@ loadPosts();
 
 // 検索ボタン
 const searchButton = document.getElementById("search-button");
+const searchClearButton = document.getElementById("search-clear-button");
 const searchInput = document.getElementById("search-input");
 
 searchButton.addEventListener("click", () => {
     searchKeyword = searchInput.value.trim();
+    loadPosts();
+});
+
+searchClearButton.addEventListener("click", () => {
+    searchInput.value = "";
+    searchKeyword = "";
     loadPosts();
 });
 
