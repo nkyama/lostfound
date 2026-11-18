@@ -1,5 +1,4 @@
 
-
 const { createClient } = supabase;
 
 // Supabaseの接続情報
@@ -14,7 +13,6 @@ const supabaseClient = createClient(
 // HTML要素を取得
 const form = document.getElementById("auth-form");
 const loginArea = document.getElementById("login-area");
-const displayNameInput = document.getElementById("display-name");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const message = document.getElementById("message");
@@ -22,8 +20,6 @@ const signupButton = document.getElementById("signup");
 const logoutButton = document.getElementById("logout");
 const account = document.getElementById("account");
 const userEmail = document.getElementById("user-email");
-const accountDisplayName = document.getElementById("account-display-name");
-const saveDisplayNameButton = document.getElementById("save-display-name");
 
 // メッセージ表示
 function showMessage(text) {
@@ -33,8 +29,6 @@ function showMessage(text) {
 }
 
 // ログイン状態に応じて画面を切り替える
-
-
 async function updateScreen() {
     const { data: { user }, error } =
         await supabaseClient.auth.getUser();
@@ -50,10 +44,6 @@ async function updateScreen() {
 
         userEmail.textContent = user.email;
 
-        // 保存済みの表示名を表示
-        accountDisplayName.value =
-            user.user_metadata?.display_name || "";
-
         // 不要なメッセージを消す
         showMessage("");
 
@@ -63,12 +53,10 @@ async function updateScreen() {
         account.hidden = true;
 
         userEmail.textContent = "";
-        accountDisplayName.value = "";
 
         showMessage("");
     }
 }
-
 
 // ログイン
 if (form) {
@@ -101,39 +89,11 @@ if (form) {
     });
 }
 
-
-// 表示名を保存
-saveDisplayNameButton.addEventListener("click", async () => {
-
-    const displayName = accountDisplayName.value.trim();
-
-    if (!displayName) {
-        showMessage("表示名を入力してください。");
-        return;
-    }
-
-    saveDisplayNameButton.disabled = true;
-
-    const { error } = await supabaseClient.auth.updateUser({
-        data: {
-            display_name: displayName
-        }
-    });
-
-    saveDisplayNameButton.disabled = false;
-
-    if (error) {
-        showMessage("保存エラー：" + error.message);
-        return;
-    }
-
-    showMessage("");
-});
-
 // ログアウト
 if (logoutButton) {
     logoutButton.addEventListener("click", async () => {
-        const { error } = await supabaseClient.auth.signOut();
+        const { error } =
+            await supabaseClient.auth.signOut();
 
         if (error) {
             showMessage("ログアウトエラー：" + error.message);
@@ -147,9 +107,9 @@ if (logoutButton) {
 
 // 新規登録
 if (signupButton) {
-    signupButton.addEventListener("click", async () => {
+    signupButton.addEventListener("click", async (event) => {
+        event.preventDefault();
 
-        const displayName = displayNameInput.value.trim();
         const email = emailInput.value.trim();
         const password = passwordInput.value;
 
@@ -159,8 +119,8 @@ if (signupButton) {
             return;
         }
 
-        if (!displayName) {
-            showMessage("表示名を入力してください。");
+        if (!password) {
+            showMessage("パスワードを入力してください。");
             return;
         }
 
@@ -168,12 +128,7 @@ if (signupButton) {
 
         const { error } = await supabaseClient.auth.signUp({
             email,
-            password,
-            options: {
-                data: {
-                    display_name: displayName
-                }
-            }
+            password
         });
 
         if (error) {
@@ -181,7 +136,7 @@ if (signupButton) {
             return;
         }
 
-        showMessage("確認メールを送信しました。メールを確認してください。");
+        showMessage("登録を受け付けました。確認メールが届いた場合は、メール内のリンクを開いてください。");
     });
 }
 
