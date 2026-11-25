@@ -8,8 +8,5 @@ HTML、CSS、JavaScriptを使ってWebサイトを作成するプロジェクト
 - HTML
 - CSS
 - JavaScript
-
-## メンバー
-- 自分のGitHubユーザー名
-- 共同開発メンバーのユーザー名
+  
 
